@@ -21,10 +21,10 @@ while principal > payment:
         principal = principal - extra_payment
         total_paid += extra_payment
     
-    print(month, round(total_paid,2), round(principal,2))
-
+    print(f'{month} months, paying a total of ${total_paid:0.2f}, with ${principal:0.2f} remaining.')
 if principal > 0:
     month += 1
     total_paid += principal
-    print(month, round(total_paid,2), 0.0)
+    principal = 0.0
+    print(f'{month} months, paying a total of ${total_paid:0.2f}, with ${principal:0.2f} remaining.')
 
