@@ -9,13 +9,14 @@ def portfolio_cost(filename):
     with open(filename,'rt') as f:
         rows = csv.reader(f)
         header = next(rows)
-        for l in rows:
+        for rowno, row in enumerate(rows, start=1):
+            record = dict(zip(header,row))
             try:
-                stockNum = int(l[1])
-                stockCost = float(l[2])
+                stockNum = int(record['shares'])
+                stockCost = float(record['price'])
                 total += stockNum*stockCost
             except ValueError:
-                print("Couldn't parse line: ", l)            
+                print(f'Row {rowno}: Bad row: {row}')            
     return total
 
 if len(sys.argv) == 2:
