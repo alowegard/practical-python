@@ -5,6 +5,7 @@
 
 import csv
 import fileparse
+import stock
 
 def read_portfolio(filename):
     '''
@@ -16,12 +17,8 @@ def read_portfolio(filename):
         header = next(rows)
         for row in rows:
             record = dict(zip(header,row))
-            stock = {
-                'name' : record['name'],
-                'shares' : int(record['shares']),
-                'price' : float(record['price'])
-            }
-            portfolio.append(stock)
+            mystock = stock.Stock(record['name'], int(record['shares']), float(record['price']))    
+            portfolio.append(mystock)
     return portfolio
 
 def read_prices(filename):
@@ -45,8 +42,8 @@ def get_gains(portfolio, prices):
     current_value = 0.0
     gain = 0.0
     for d in portfolio:
-        gain += (prices[d['name']] - d['price'])*d['shares']
-        current_value += d['shares']*prices[d['name']]
+        gain += (prices[d.name] - d.price)*d.shares
+        current_value += d.shares*prices[d.name]
     print("current value = ", f'${current_value:0.2f}', "gain/loss = ", f'${gain:0.2f}')
 
 
@@ -57,8 +54,8 @@ def make_report(portfolio, prices):
     '''
     report = []
     for d in portfolio:
-        change = (prices[d['name']] - d['price'])
-        report.append((d['name'], d['shares'], prices[d['name']], change))
+        change = (prices[d.name] - d.price)
+        report.append((d.name, d.shares, prices[d.name], change))
     return report
 
 def print_report(report):
@@ -76,8 +73,7 @@ def portfolio_report(portfolio_filename, price_filename):
     '''
     takes as input the filenames for portfolio and prices and prints out a formatted table of information
     '''
-    with open(portfolio_filename) as file:
-        portfolio = fileparse.parse_csv(file, select=['name','shares','price'], types = [str, int, float])
+    portfolio = read_portfolio(portfolio_filename)
     with open(price_filename) as file:
         prices = dict(fileparse.parse_csv(file, has_headers=False, types=[str,float]))
     report = make_report(portfolio, prices)
