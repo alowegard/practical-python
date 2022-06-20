@@ -1,8 +1,10 @@
+#!/usr/bin/env python
 # report.py
 #
 # Exercise 2.4
 
 import csv
+import fileparse
 
 def read_portfolio(filename):
     '''
@@ -59,13 +61,31 @@ def make_report(portfolio, prices):
         report.append((d['name'], d['shares'], prices[d['name']], change))
     return report
 
-portfolio = read_portfolio('Data/portfoliodate.csv')
-prices = read_prices('Data/prices.csv')
-report = make_report(portfolio, prices)
+def print_report(report):
+    '''
+    takes as input a report from the make_report function and prints out a formatted table
+    '''
+    headers = ('Name', 'Shares', 'Price', 'Change')
+    print('%10s %10s %10s %10s' % headers)
+    print(('-' * 10 + ' ') * len(headers))
+    for name, shares, price, change in report:
+        price = '$'+'%0.2f' % price
+        print(f'{name:>10s} {shares:>10d} {price:>10s} {change:>10.2f}')
 
-headers = ('Name', 'Shares', 'Price', 'Change')
-print('%10s %10s %10s %10s' % headers)
-print(('-' * 10 + ' ') * len(headers))
-for name, shares, price, change in report:
-    price = '$'+'%0.2f' % price
-    print(f'{name:>10s} {shares:>10d} {price:>10s} {change:>10.2f}')
+def portfolio_report(portfolio_filename, price_filename):
+    '''
+    takes as input the filenames for portfolio and prices and prints out a formatted table of information
+    '''
+    with open(portfolio_filename) as file:
+        portfolio = fileparse.parse_csv(file, select=['name','shares','price'], types = [str, int, float])
+    with open(price_filename) as file:
+        prices = dict(fileparse.parse_csv(file, has_headers=False, types=[str,float]))
+    report = make_report(portfolio, prices)
+    print_report(report)
+
+def main(argv):
+    portfolio_report(argv[1],argv[2])
+
+if __name__ == '__main__':
+    import sys
+    main(sys.argv)
