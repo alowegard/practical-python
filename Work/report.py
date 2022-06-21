@@ -6,6 +6,7 @@
 import csv
 import fileparse
 import stock
+import tableformat
 
 def read_portfolio(filename):
     '''
@@ -58,29 +59,33 @@ def make_report(portfolio, prices):
         report.append((d.name, d.shares, prices[d.name], change))
     return report
 
-def print_report(report):
+def print_report(reportdata, formatter):
     '''
     takes as input a report from the make_report function and prints out a formatted table
     '''
-    headers = ('Name', 'Shares', 'Price', 'Change')
-    print('%10s %10s %10s %10s' % headers)
-    print(('-' * 10 + ' ') * len(headers))
-    for name, shares, price, change in report:
-        price = '$'+'%0.2f' % price
-        print(f'{name:>10s} {shares:>10d} {price:>10s} {change:>10.2f}')
+    formatter.headings(['Name', 'Shares', 'Price', 'Change'])
+    for name, shares, price, change in reportdata:
+        rowdata = [ name, str(shares), '$'+f'{price:0.2f}', f'{change:0.2f}' ]
+        formatter.row(rowdata)
 
-def portfolio_report(portfolio_filename, price_filename):
+def portfolio_report(portfolio_filename, price_filename, fmt='txt'):
     '''
     takes as input the filenames for portfolio and prices and prints out a formatted table of information
     '''
     portfolio = read_portfolio(portfolio_filename)
-    with open(price_filename) as file:
-        prices = dict(fileparse.parse_csv(file, has_headers=False, types=[str,float]))
+    prices = read_prices(price_filename)
     report = make_report(portfolio, prices)
-    print_report(report)
+
+    formatter = tableformat.create_formatter(fmt) 
+    print_report(report, formatter)
 
 def main(argv):
-    portfolio_report(argv[1],argv[2])
+    if len(argv) == 3:
+        portfolio_report(argv[1],argv[2])
+    elif len(argv) == 4:
+        portfolio_report(argv[1], argv[2], argv[3])
+    else:
+        raise RuntimeError("Please include at least 2 arguments")
 
 if __name__ == '__main__':
     import sys
