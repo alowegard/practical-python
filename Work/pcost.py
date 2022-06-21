@@ -14,9 +14,7 @@ def portfolio_cost(filename):
     portfolio = report.read_portfolio(filename)
     for rowno, stock in enumerate(portfolio,1):
         try:
-            stockNum = stock.shares
-            stockCost = stock.price
-            total += stockNum*stockCost
+            total += stock.cost
         except ValueError:
             print(f'Entry {rowno}: Bad entry: {row}')            
     return total
